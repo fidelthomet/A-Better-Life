@@ -8,13 +8,24 @@ function matchBLIxWM() {
 	d3.csv("data/bli.csv", function(error, bli) {
 		if (error) throw error
 
-		d3.csv("data/whatmatters.csv", function(error, wm) {
+		d3.tsv("http://www.oecdbetterlifeindex.org/bli/rest/indexes/stats/country", function(error, wm) {
 			if (error) throw error
 
 			var response = "Country"
 
 			wm.forEach(function(wmCountry) {
-				response += "," + wmCountry.CountryCode
+				response += "," + wmCountry.country
+
+				var normalize = 0
+
+				bliCodes.forEach(function(bliCode) {
+					normalize += parseFloat(wmCountry[bliCode])
+				})
+
+				bliCodes.forEach(function(bliCode) {
+					wmCountry[bliCode]=parseFloat(wmCountry[bliCode])/normalize
+				})
+
 			})
 
 
@@ -22,13 +33,14 @@ function matchBLIxWM() {
 				response += "\n" + bliCountry.CountryCode
 				wm.forEach(function(wmCountry) {
 
-					
+
+
 					var match = 0
 
 					bliCodes.forEach(function(bliCode) {
-						match += parseFloat(wmCountry[bliCode])*parseFloat(bliCountry[bliCode])
+						match += wmCountry[bliCode] * parseFloat(bliCountry[bliCode])
 					})
-					response += ","+match
+					response += "," + match
 				})
 			})
 
