@@ -1,0 +1,59 @@
+body{
+	background: #D6F8EF;
+}
+.land{
+	fill: #FFEDF7;
+	fill-opacity: 1;
+	stroke:#FFC7E6;
+	stroke-opacity: 1;
+	stroke-width:0.5;
+	transition: all .4s;
+}
+
+svg{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	transition: all .4s;
+	left: 0px;
+}
+
+.super{
+	transform: translate(40px,200px) scale(7);
+}
+.super .land{
+	stroke-width:0.07;
+}
+#title{
+	font-family: "neuzeit-grotesk", sans-serif;
+	font-weight: 700;
+	font-size: 24px;
+	position: absolute;
+	top: 20px;
+	left: 40px;
+	color: #152943;
+}
+#title div{
+	position: absolute;
+	left: -10px;
+	top: 34px;
+	width: 50px;
+	height: 2px;
+	background: #152943;
+}
+
+#map {
+	transform-origin: center;
+	transition: transform .4s, opacity .4s;
+	opacity: 0;
+	transform-origin: 422.33px 221.33px;
+}
+
+.typekit {
+	opacity: 0;
+}
+
+.text{
+	transition: opacity .4s;
+}
