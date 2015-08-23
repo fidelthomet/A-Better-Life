@@ -13,7 +13,9 @@ module.exports = function(grunt) {
 			all: {
 				files: {
 					'build/scripts/magic.js': ['src/scripts/magic.js'],
-					'build/scripts/map.js': ['src/scripts/map.js']
+					'build/scripts/donut.js': ['src/scripts/donut.js'],
+					'build/scripts/map.js': ['src/scripts/map.js'],
+					'build/scripts/countries.js': ['src/scripts/countries.js']
 				}
 			}
 		},
@@ -26,7 +28,7 @@ module.exports = function(grunt) {
 				},
 				files: {
 					'build/index.html': 'src/index.html',
-					'build/googlemapstest.html': 'src/googlemapstest.html'
+					'build/svg/select.svg': 'src/svg/select.svg'
 					// 'build/map/map.html': 'src/map/map.html'
 				}
 			}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+	.outer .donut{
+		fill-opacity: 0;
+		stroke-width: 0;
+	}
+
+	.outer, .inner{
+		/*display: none;*/
+		
+		
+		transition: opacity .4s;
+
+	
+	}
+
+	.outer.showDonut, .inner.showDonut{
+		/*display: none;*/
+		
+			opacity: 1;
+			
+		
+	}
+
+	.donut {
+		stroke: #fff;
+		stroke-width: 1;
+		transition: fill-opacity .4s;
+	}
+
+	.label {
+		position: absolute;
+		height: 5px;
+		width: 5px;
+		background-color: #ff0;
+	}
+
+	svg {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+	}
+
+
+</style>
+<body>
+	<div id="countries"></div>
+	<script src="scripts/jquery-2.1.4.min.js" type="text/javascript"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+	<script>
+
+
+
+		var dispatch = d3.dispatch("load", "statechange");
+
+		var groups = [
+		"AUS","AUT","BEL","CAN","CHL","CZE","EST","FIN","FRA","DEU","HUN","ISL","IRL","ISR","ITA","JPN","KOR","LUX","MEX","NLD","NZL","NOR","POL","PRT","SVK","SVN","ESP","SWE","CHE","GBR","USA","LTU","RUS"
+		];
+
+		var stateById
+
+		d3.csv("data/migration.csv", type, function(error, states) {
+			if (error) throw error;
+			stateById = d3.map();
+			states.forEach(function(d) { stateById.set(d.id, d); });
+			dispatch.load(stateById);
+			if (location.hash.split("#")[1]) {
+				$(".outer, .inner").show()
+				dispatch.statechange(stateById.get(location.hash.split("#")[1]))	
+			} else {
+				$(".outer, .inner").hide()
+			}
+		});
+
+// A drop-down menu for selecting a state; uses the "menu" namespace.
+$(window).on("hashchange", function(){
+	if (location.hash.split("#")[1]) {
+		$(".outer, .inner").css({display: "block"})
+		dispatch.statechange(stateById.get(location.hash.split("#")[1]))	
+	} else {
+		$(".outer, .inner").css({display: "none"})
+	}
+	
+})
+
+// A pie chart to show population by age group; uses the "pie" namespace.
+dispatch.on("load.pie", function(stateById) {
+	var width = window.innerWidth,
+	height = window.innerHeight,
+	radius = Math.min(width*.6, height*.6) / 2;
+
+	var color = d3.scale.ordinal()
+	.domain(groups)
+	.range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+	var arc = d3.svg.arc()
+	.outerRadius(radius - 10)
+	.innerRadius(radius - 20);
+
+	var arc2 = d3.svg.arc()
+	.outerRadius(radius - 0)
+	.innerRadius(radius - 20);
+
+	var pie = d3.layout.pie()
+	.sort(null);
+
+	var pie2 = d3.layout.pie()
+	.sort(null);
+
+	var svg = d3.select("body").append("svg")
+	.append("g")
+	.attr("class","inner")
+	.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+	var svg2 = d3.select("svg")
+	.append("g")
+	.attr("class","outer")
+	.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+	var path = svg.selectAll("path")
+	.data(groups)
+	.enter().append("path")
+	.style("fill", "rgb(127, 173, 62)")
+	.style("opacity", function() { return .2+Math.random()*.8 })
+	.classed('donut',true)
+	.attr("iso3", function(i) { return i})
+	.each(function() { this._current = {startAngle: 0, endAngle: 0};});
+
+	var path2 = svg2.selectAll("path")
+	.data(groups)
+	.enter().append("path")
+	.style("fill", "rgb(127, 173, 62)")
+	.style("opacity", function() { return .2+Math.random()*.8 })
+	.classed('donut',true)
+	.attr("iso3", function(i) { return i})
+	.each(function() { this._current = {startAngle: 0, endAngle: 0};});
+
+	$(".outer .donut").mouseover(function(){
+		$(this).css("fill-opacity","1")
+		$(".inner [iso3='"+$(this).attr("iso3")+"']").css("fill-opacity","0")
+	})
+
+	$(".outer .donut").mouseout(function(){
+		$(this).css("fill-opacity","0")
+		$(".inner [iso3='"+$(this).attr("iso3")+"']").css("fill-opacity","1")
+	})
+	dispatch.on("statechange.pie", function(d) {
+		$("#countries").html("")
+		path.data(pie.value(function(g) { return d[g]; })(groups)).transition()
+		.attrTween("d", function(d) {
+			var interpolate = d3.interpolate(this._current, d);
+			this._current = interpolate(0);
+			return function(t) {
+				return arc(interpolate(t));
+			};
+		});
+		path2.data(pie2.value(function(g) { return d[g]; })(groups)).transition()
+		.attrTween("d", function(d) {
+			var interpolate = d3.interpolate(this._current, d);
+			this._current = interpolate(0);
+			return function(t) {
+				return arc2(interpolate(t));
+			};
+		}).each("end", function(d){
+			var dist = d.endAngle-d.startAngle
+			if(dist > .3){
+				var angle = d.startAngle+dist/2-Math.PI/2
+				var pos = angleToPos(window.innerWidth/2,window.innerHeight/2,angle,240)
+
+				$("#countries").append($("<div class='label'>"+d.data+"<br/>"+(d.value*1000)+"</div>").css({
+					left: pos[0]+"px",
+					top: pos[1]+"px"
+				}))
+			}
+		});
+	});
+	console.log("haha")
+	$(".outer .donut").each(function(index, item){
+		// console.log($(item).attr("iso3"))
+		if(parseFloat($(item).attr("angledist"))>1){
+			$(item).css("fill-opacity", "1")
+		}
+	})
+});
+
+// Coerce population counts to numbers and compute total per state.
+function type(d) {
+	d.total = d3.sum(groups, function(k) { return d[k] = +d[k]; });
+	return d;
+}
+
+function angleToPos(xCoord, yCoord, angle, length) {
+	return [length * Math.cos(angle) + xCoord, length * Math.sin(angle) + yCoord]
+}
+
+</script>
