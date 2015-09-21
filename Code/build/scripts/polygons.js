@@ -1,0 +1,1 @@
+function drawPolygons(){groups.forEach(function(a){})}

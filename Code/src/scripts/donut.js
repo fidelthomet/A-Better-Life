@@ -125,6 +125,7 @@
 			.attr("class", "outer")
 			.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+		drawPolygons()
 		var path = svg.selectAll("path")
 			.data(groups)
 			.enter().append("path")
@@ -166,11 +167,17 @@
 			$(this).css("fill-opacity", "1")
 			$(".inner [iso3='" + $(this).attr("iso3") + "']").css("fill-opacity", "0")
 			$(".inner [iso3='" + $(this).attr("iso3") + "']").css("stroke-opacity", "0")
-			$("#labels .label").css("opacity", .2)
+			$("#labels .label.center").css("opacity", .2)
 			$("#labels [iso3='" + $(this).attr("iso3") + "']").css({
 				opacity: 1,
-				"z.index": 200
+				"z.index": 200,
+				height: 50+"px"
 			});
+			$(".poly path").css("opacity", .2)
+			$(".poly [iso3='" + $(this).attr("iso3") + "']").css({
+				opacity: 1,
+				"stroke-width": 1.5
+			})
 		})
 
 		$(".outer .donut").mouseout(function() {
@@ -178,9 +185,15 @@
 			$(".inner [iso3='" + $(this).attr("iso3") + "']").css("fill-opacity", "1")
 			$(".inner [iso3='" + $(this).attr("iso3") + "']").css("stroke-opacity", "1")
 			$("#labels .label").css("opacity", 1)
+			$("#labels .label").css("height", "14px")
+			$("#labels .label.center").css("height", "50px")
 			$("#labels [iso='" + $(this).attr("iso3") + "']").css({
 				"z.index": 0
 			});
+			$(".poly path").css({
+				opacity: .7,
+				"stroke-width": .5
+			})
 		})
 		dispatch.on("statechange.pie", function(d) {
 
@@ -191,6 +204,34 @@
 				normalize += parseFloat(wmById.get(d.id)[bliCode])
 			})
 
+
+			var sortable = [];
+			for (var bliItem in wmById.get(d.id))
+				sortable.push([bliItem, wmById.get(d.id)[bliItem]])
+			sortable.sort(function(a, b) {
+				return a[1] - b[1]
+			})
+			var sortedBLI = {}
+			sortable.forEach(function(item, index) {
+				sortedBLI[item[0]] = index - 1
+			})
+
+			var width = window.innerWidth,
+				height = window.innerHeight,
+				radiusC = Math.min(width * .6, height * .6) / 2,
+				angleC = 2 * Math.PI / 11
+
+			radiusC -= 30
+			radiusC /= 2
+
+			bliCodes.forEach(function(bliCode, index) {
+				var pos = angleToPos(window.innerWidth / 2, window.innerHeight / 2, angleC * index - Math.PI / 2, radiusC + radiusC / 10 * sortedBLI[bliCode])
+				$(".circles [bli='" + bliCode + "']").css({
+					"cx": pos[0],
+					"cy": pos[1]
+				})
+			})
+
 			path.data(pie.value(function(g) {
 				return d[g];
 			})(groups)).style("opacity", function(ddo) {
@@ -199,7 +240,10 @@
 				bliCodes.forEach(function(bliCode) {
 					match += (parseFloat(wmById.get(d.id)[bliCode]) / normalize) * parseFloat(bliById.get(ddo.data)[bliCode])
 				})
-				return ((match / 10 - .1) * 1.25)
+				var opacity = ((match / 10 - .1) * 1.25)
+
+				// console.log($(".poly [iso3='"+ddo.data+"']"))
+				return opacity
 			})
 
 			path2.data(pie.value(function(g) {
@@ -258,8 +302,9 @@
 
 					// $("#labels").append(label)
 					label.removeClass("center")
-
+					label.css("height", "14px")
 					if (dist > .3) {
+
 						var angle = ddo.startAngle + dist / 2
 
 						var offset = [-150, -60]
@@ -284,7 +329,7 @@
 
 
 						label.addClass("center")
-
+						label.css("height", "50px")
 
 
 					}

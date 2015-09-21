@@ -13,7 +13,7 @@ module.exports = function(grunt) {
 			all: {
 				files: {
 					'build/scripts/magic.js': ['src/scripts/magic.js'],
-					'build/scripts/donut.js': ['src/scripts/donut.js'],
+					'build/scripts/donut.js': ['src/scripts/donut.js', 'src/scripts/polygons.js'],
 					'build/scripts/map.js': ['src/scripts/map.js'],
 					'build/scripts/countries.js': ['src/scripts/countries.js']
 				}

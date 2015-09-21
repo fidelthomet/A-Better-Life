@@ -62,7 +62,6 @@
  			'address': countries.name[countries.iso2.indexOf(iso2)]
  		}, function(results, status) {
  			if (status == google.maps.GeocoderStatus.OK) {
- 				console.log(results[0].geometry.viewport)
  				map.fitBounds(results[0].geometry.viewport);
  			}
  		});

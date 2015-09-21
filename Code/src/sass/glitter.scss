@@ -57,6 +57,35 @@ svg {
 		transition: fill-opacity .4s;
 	}
 
+	.poly {
+		opacity: 0;
+		transition: opacity .4s;	
+	}
+
+	.poly path{
+		fill: transparent;
+		stroke-width: .5px;
+		transition: opacity .4s, stroke-width .4s;
+		opacity: .7;
+	}
+
+	.poly circle{
+		fill: transparent;
+		// stroke-width: .5px;
+		transition: opacity .4s;
+		opacity: .5;
+		stroke: $dark;
+	}
+
+	.circles {
+		transition: opacity .2s;
+
+		opacity: 0;
+		circle{
+			transition: cx .8s, cy .8s;
+		}
+	}
+
 }
 
 
@@ -163,21 +192,64 @@ svg {
 
 	.label{
 		
-		
-		transition: opacity .4s;
+		cursor: default;
+		transition: opacity .4s, height .2s;
 		opacity: 0;
 		transform-origin: center center;
 		width: 140px;
-		height: 50px;
+		height: 14px;
 		margin-top: -1px;
+		overflow: hidden;
 
 		border-bottom: 1px solid #152943;
-    	border-top: 1px solid #152943;
- 		padding: 5px;
+		border-top: 1px solid #152943;
+		padding: 5px;
 
- 		&.center{
- 			position: fixed;
- 		}
+		&:hover{
+			height: 50px;
+		}
+
+		&.center{
+			position: fixed;
+			height: 50px;
+		}
+	}
+}
+
+#bliLabel{
+	position: absolute;
+	background-color: $dark;
+	z-index: 10000;
+	padding: 0px 5px;
+}
+
+#intro{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 20000;
+
+	.intro{
+		position: absolute;
+		top: 58px;
+		left: 40px;
+		width: 310px;
+
+		display: none;
+
+		a{
+			color: $dark;
+		}
+	
+		span{
+			cursor: pointer;
+		}
+
+		.line{
+			margin: 4px 0px 4px -10px;
+    		width: 30px;
+   			height: 1px;
+		}
 	}
 }
 
