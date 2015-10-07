@@ -9,57 +9,43 @@
 	var stateById, bliById, wmById
 
 	function initDonut() {
-		var dataPromises = []
 
-		dataPromises.push(new Promise(function(resolve, reject) {
-			d3.csv("data/migration.csv", type, function(error, states) {
-				if (error) throw error;
-				stateById = d3.map();
-				states.forEach(function(d) {
-					stateById.set(d.id, d);
-				});
-				resolve()
-			})
-		}))
+		d3.csv("data/migration.csv", type, function(error, states) {
+			if (error) throw error;
+			stateById = d3.map();
+			states.forEach(function(d) {
+				stateById.set(d.id, d);
+			});
 
-		dataPromises.push(new Promise(function(resolve, reject) {
 			d3.csv("data/bli.csv", type, function(error, bliStates) {
 				if (error) throw error;
 				bliById = d3.map();
 				bliStates.forEach(function(d) {
 					bliById.set(d.CountryCode, d);
 				});
-				resolve()
+
+				d3.tsv("http://www.oecdbetterlifeindex.org/bli/rest/indexes/stats/country", function(error, wmStates) {
+					if (error) throw error
+					wmById = d3.map();
+					wmStates.forEach(function(d) {
+						wmById.set(d.country, d);
+					});
+
+					dispatch.load(stateById);
+					if (location.hash.split("#")[1]) {
+						$(".outer, .inner").css("opacity", 1)
+
+						dispatch.statechange(stateById.get(countries.iso3[countries.iso2.indexOf(location.hash.split("#")[1])]))
+					} else {
+						// $(".outer, .inner").hide()
+						$("#labels").hide()
+						$(".outer, .inner").css("pointer-events", "none")
+						dispatch.statechange(stateById.get("AUS"))
+					}
+
+				})
 			})
-		}))
-
-		dataPromises.push(new Promise(function(resolve, reject) {
-			d3.tsv("http://www.oecdbetterlifeindex.org/bli/rest/indexes/stats/country", function(error, wmStates) {
-				if (error) throw error
-				wmById = d3.map();
-				wmStates.forEach(function(d) {
-					wmById.set(d.country, d);
-				});
-				resolve()
-			})
-		}))
-
-		Promise.all(dataPromises).then(function() {
-
-			dispatch.load(stateById);
-			if (location.hash.split("#")[1]) {
-				$(".outer, .inner").css("opacity", 1)
-
-				dispatch.statechange(stateById.get(countries.iso3[countries.iso2.indexOf(location.hash.split("#")[1])]))
-			} else {
-				// $(".outer, .inner").hide()
-				$("#labels").hide()
-				$(".outer, .inner").css("pointer-events", "none")
-				dispatch.statechange(stateById.get("AUS"))
-			}
 		})
-
-
 
 	}
 
@@ -171,7 +157,7 @@
 			$("#labels [iso3='" + $(this).attr("iso3") + "']").css({
 				opacity: 1,
 				"z.index": 200,
-				height: 50+"px"
+				height: 50 + "px"
 			});
 			$(".poly path").css("opacity", .2)
 			$(".poly [iso3='" + $(this).attr("iso3") + "']").css({
